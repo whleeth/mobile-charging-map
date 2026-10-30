@@ -1,0 +1,439 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>行動充電規格地圖</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one analytic column; header, legend, log-log scatter, reading notes, data table. */
+:root{
+  --bg:#f7f8f6; --surface:#ffffff; --ink:#151816; --ink-2:#4b514c; --ink-3:#7a807b;
+  --line:#d9ddd8; --grid:#e8ebe7; --cross:#9aa19b; --strip:#f0f2ef;
+  --s-daily:#2a78d6; --s-roam:#eb6834; --s-station:#1baf7a; --s-rescue:#eda100; --s-portable:#e87ba4; --s-alt:#8a8984;
+  --ok:#0ca30c; --bad:#d03b3b; --warn:#b07a00;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-data:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#151716; --surface:#1c1f1d; --ink:#eef0ec; --ink-2:#c1c6bf; --ink-3:#8d938c;
+  --line:#343833; --grid:#2a2d2a; --cross:#6c736b; --strip:#232624;
+  --s-daily:#3987e5; --s-roam:#d95926; --s-station:#199e70; --s-rescue:#c98500; --s-portable:#d55181; --s-alt:#8e8d86;
+  --ok:#3fbf3f; --bad:#e66767; --warn:#e0a52a; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#151716; --surface:#1c1f1d; --ink:#eef0ec; --ink-2:#c1c6bf; --ink-3:#8d938c;
+  --line:#343833; --grid:#2a2d2a; --cross:#6c736b; --strip:#232624;
+  --s-daily:#3987e5; --s-roam:#d95926; --s-station:#199e70; --s-rescue:#c98500; --s-portable:#d55181; --s-alt:#8e8d86;
+  --ok:#3fbf3f; --bad:#e66767; --warn:#e0a52a; color-scheme:dark }
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+h1{font-size:26px;line-height:1.25;margin:0;font-weight:700;text-wrap:balance;letter-spacing:.01em}
+.lede{margin:6px 0 0;color:var(--ink-2);max-width:68ch}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;font-size:13px}
+.legend .item{display:flex;align-items:center;gap:7px;color:var(--ink)}
+.legend .cnt{font-family:var(--f-data);font-size:12px;color:var(--ink-3)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;position:relative}
+.panel-head{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;padding:12px 16px 0}
+.panel-head h2{font-size:14px;margin:0;font-weight:700}
+.panel-head p{margin:0;color:var(--ink-3);font-size:12.5px}
+.scroll{overflow-x:auto}
+svg.chart{display:block;min-width:760px;width:100%;height:auto}
+.chart text{font-family:var(--f-body)}
+.tick{font-family:var(--f-data);font-size:11px;fill:var(--ink-3)}
+.axis-title{font-size:12px;fill:var(--ink-2);font-weight:500}
+.qlab{font-size:11px;fill:var(--ink-3);letter-spacing:.04em}
+.lbl-name{font-size:12px;fill:var(--ink);font-weight:500}
+.st-ok{fill:var(--ok);font-weight:500}.st-bad{fill:var(--bad);font-weight:500}.st-warn{fill:var(--warn);font-weight:500}
+.st-ref{fill:var(--ink-3);font-weight:500}
+.lbl-val{font-family:var(--f-data);font-size:11px;fill:var(--ink-2)}
+.lead{stroke:var(--ink-3);stroke-width:1;fill:none}
+.zoomframe{fill:none;stroke:var(--ink-2);stroke-width:1.2;stroke-dasharray:4 3}
+.mark{cursor:pointer;outline:none}
+.mark:focus-visible .hit,.mark:hover .hit{stroke:var(--ink);stroke-width:1.5;stroke-opacity:.6}
+.tip{position:absolute;z-index:5;pointer-events:none;width:300px;max-width:calc(100% - 16px);background:var(--surface);color:var(--ink);
+  border:1px solid var(--line);border-radius:6px;box-shadow:0 6px 20px rgba(0,0,0,.14);padding:10px 12px;font-size:12px;line-height:1.5}
+.tip h3{font-size:13px;margin:0 0 2px;font-weight:700}
+.tip .mode{color:var(--ink-3);font-size:11.5px;margin-bottom:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tip dl{display:grid;grid-template-columns:72px 1fr;gap:3px 8px;margin:0}
+.tip dt{color:var(--ink-3)} .tip dd{margin:0;min-width:0;white-space:pre-line}
+.tip .v{font-family:var(--f-data)}
+.pill{display:inline-block;white-space:nowrap;font-size:11px;padding:0 7px;border-radius:9px;border:1px solid currentColor;line-height:18px}
+.pill.ref{color:var(--ink-3)} .pill.ok{color:var(--ok)} .pill.bad{color:var(--bad)} .pill.warn{color:var(--warn)}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px 28px;color:var(--ink-2);font-size:13px}
+.notes h2,.tbl h2{font-size:12px;letter-spacing:.08em;color:var(--ink-3);font-weight:500;margin:0 0 6px}
+.notes ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.tbl .scroll{border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:860px;font-size:12.5px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--grid);vertical-align:top}
+th{color:var(--ink-3);font-weight:500;font-size:11.5px;letter-spacing:.04em;background:var(--strip)}
+td.n{font-family:var(--f-data);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sw{display:inline-flex;vertical-align:-2px;margin-right:6px}
+.key{border-top:1px solid var(--line);padding:12px 16px 14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:8px 24px;font-size:12.5px}
+.key h3{grid-column:1/-1;margin:0;font-size:12px;letter-spacing:.08em;color:var(--ink-3);font-weight:500}
+.key .k{display:flex;gap:8px;align-items:flex-start;min-width:0}
+.key .k > div{min-width:0}
+.key .nm{font-weight:500}
+.key .sp{font-family:var(--f-data);font-size:11.5px;color:var(--ink-2)}
+.badge{flex:none;display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 4px;border-radius:9px;border:1.8px solid var(--s-station);font-family:var(--f-data);font-size:10.5px;font-weight:500;color:var(--ink);background:var(--surface);box-sizing:border-box}
+.badge.ev{background:var(--s-station);color:var(--surface)}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>行動充電規格地圖</h1>
+    <p class="lede">上圖是現有行動充電方案的電池容量與輸出功率，下圖是移動式 BESS。色塊把同一部署模式、規格相鄰的方案圈在一起；滑鼠移到點、編號或色塊上，可看其他欄位。</p>
+  </header>
+
+  <div class="legend" id="legend" aria-label="部署模式圖例"></div>
+
+  <div class="panel" id="p1">
+        <div class="scroll"><svg class="chart" id="c1" viewBox="0 0 1000 700" role="img" aria-label="全貌散布圖：橫軸輸出功率 2 至 2,000 kW，縱軸電池容量 2 至 10,000 kWh，皆為對數刻度"></svg></div>
+    <div class="tip" hidden></div>
+  </div>
+
+  <div class="panel" id="p2">
+    <div class="panel-head"><h2>移動式 BESS 規格地圖</h2><p>十字線在 500 kW 與 1 MWh。空心編號是多用途產品，實心是 EV 專用；同一家的多款機型標同一個編號。</p></div>
+    <div class="scroll"><svg class="chart" id="c2" viewBox="0 0 1000 700" role="img" aria-label="移動式 BESS 散布圖：橫軸輸出功率 20 至 2,000 kW，縱軸電池容量 100 至 10,000 kWh，皆為對數刻度"></svg></div>
+    <div class="key" id="key" aria-label="移動式 BESS 編號對照"></div>
+    <div class="tip" hidden></div>
+  </div>
+
+  <section class="notes" aria-label="讀圖方式">
+    <div>
+      <h2>讀圖方式</h2>
+      <ul>
+        <li>兩軸都是對數刻度。</li>
+        <li>上圖十字線在 50 kW（一般視為直流快充的起點）與 100 kWh；下圖在 500 kW 與 1 MWh。</li>
+        <li>功率用整台設備的總功率；單槍功率在 hover 資訊裡。</li>
+        <li>業者只公開範圍的規格畫成方框或線段，不取中間值。</li>
+      </ul>
+    </div>
+    <div>
+      <h2>色塊與邊緣帶</h2>
+      <ul>
+        <li>色塊圈住同一部署模式、規格相鄰的方案；同一模式規格相距很遠時分成幾塊。各模式的點數寫在圖例。</li>
+        <li>斜線色塊是替代方案（非行動）：電池緩衝固定型，作為對照。</li>
+        <li>只公開功率的方案放在下方邊緣帶，只公開容量的放在右側邊緣帶。</li>
+        <li>NOMAD 與 Power Edison 是儲能電源，需另接 EV 充電器；它們在上圖以範圍呈現，在下圖以各機型呈現。</li>
+        <li>上圖灰色十字是範圍外參考：Komatsu／Dimaag 的工程機械用行動充電車（295 kWh、1 MW、MCS 接頭），用來顯示 MW 級、帶 MCS 接頭的行動充電在技術上已經做得出來。</li>
+        <li>下圖編號圓圈：空心是多用途產品（EV 充電只是用途之一），實心是 EV 專用的儲能拖車。</li>
+        <li>編號圓圈太近時會稍微錯開，細線連回實際位置；Aggreko 與 Atlas Copco 都有 250 kW／575 kWh 機型，規格相同，合併標成「6/7」。</li>
+        <li>Atlas Copco 的功率用連續功率（kW），其他廠商用業者公布的額定功率。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="tbl">
+    <h2>數據點清單</h2>
+    <div class="scroll"><table id="table"></table></div>
+  </section>
+</div>
+
+<script>
+const MODES={
+  daily:{name:"日常補能派送型",c:"--s-daily",shape:"circle"},
+  roam:{name:"場內巡迴型",c:"--s-roam",shape:"square"},
+  station:{name:"駐點型",c:"--s-station",shape:"triangle"},
+  rescue:{name:"救援派送型",c:"--s-rescue",shape:"diamond"},
+  portable:{name:"攜帶型",c:"--s-portable",shape:"plus"},
+  alt:{name:"替代方案（非行動）：電池緩衝固定型",c:"--s-alt",shape:"ring"},
+  ref:{name:"範圍外參考（非道路車輛）",c:"--ink-2",shape:"plus"}
+};
+const SC="行動充電服務業者的人員到場插拔";
+const D=[
+ {id:"v2",name:"SparkCharge Roadie V2",co:"美國",mode:"daily",scene:"Workplace & Depot × LDV EV",cap:[3.5,3.5],capNote:"每模組約 3.5 kWh，可堆疊",pow:[20,20],powNote:"約 20 kW",out:"DC",car:"人員攜帶的電池模組",op:SC,mod:"是（可堆疊模組）",con:"CCS",biz:"CaaS，按度計費或月費合約；二手報導每度 0.35 至 0.60 美元（低信心度）",mkt:"營運中；2025-05 募資 3,000 萬美元",st:"ok"},
+ {id:"v3",name:"SparkCharge Roadie V3",co:"美國",mode:"daily",scene:"Workplace & Depot × LDV EV",cap:[75,75],capNote:"每包 75 kWh（可用 56 至 58）",pow:[90,120],powNote:"90 至 120 kW",out:"DC",car:"廂型車",op:SC,mod:"是（以 75 kWh 電池包計）",con:"CCS",biz:"CaaS，按度計費或月費合約；二手報導每度 0.35 至 0.60 美元（低信心度）",mkt:"營運中；2026-08 擴展至英國",st:"ok"},
+ {id:"chg",name:"Chargery",co:"德國",mode:"daily",scene:"(Semi) Public × LDV EV（共享車隊）",cap:[24,24],capNote:"24 kWh（12 × 2 kWh）",pow:[3.7,3.7],powNote:"3.7 kW AC，約 4.5 小時充飽",out:"AC",car:"電動自行車拖車",op:SC,mod:"是（12 × 2 kWh）",con:"Type 2（推論）",biz:"B2B 服務合約（DriveNow、Sixt、Daimler、Skoda）；價格未公開",mkt:"已轉型為 Surve 綜合現場服務",st:"bad",stx:"已轉型"},
+ {id:"mobi",name:"FreeWire Mobi EV",co:"美國",mode:"roam",scene:"Workplace & Depot × LDV EV",cap:[80,80],capNote:"80 kWh",pow:[11,11],powNote:"11 kW AC",out:"AC",car:"輪式充電單元",op:"人員推動、插拔",mod:"未公開",con:"未公開",biz:"賣設備加融資；價格未公開",mkt:"已倒閉，營運至 2024-06",st:"bad",stx:"已倒閉"},
+ {id:"cdu",name:"中國停車場機器人（成都）",co:"中國",mode:"roam",scene:"(Semi) Public × LDV EV",cap:[100,100],capNote:"約 100 kWh",pow:[100,100],powNote:"最高 100 kW",out:"DC",car:"機器人",op:"自動或人工駕駛；使用者掃碼下單",mod:"未公開",con:"GB/T（推論）",biz:"營運商或物業採購；使用者掃碼按次付費；價格未於本次研究取得",mkt:"北京規劃約千台（報導原文為目前 30 台上線）；上海閃電寶 2024 年交付上百台",st:"ok"},
+ {id:"lit",name:"Lightning Mobile",co:"美國",mode:"station",scene:"Workplace & Depot × LDV EV／MHDV EV",cap:[105,420],capNote:"105 至 420 kWh（模組化）",pow:[80,80],powNote:"80 kW；最多 5 個 DC 快充輸出",out:"DC",car:"拖車",op:"使用者自助（車開過來充）",mod:"是",con:"未公開",biz:"賣設備；價格未公開",mkt:"已倒閉，營運至 2023-12 進入接管，2024-02 資產出售完成",st:"bad",stx:"已倒閉"},
+ {id:"nom",name:"NOMAD",co:"美國",mode:"station",scene:"Workplace & Depot × LDV EV／MHDV EV（間接支援）",cap:[220,2000],capNote:"220 kWh 至 2 MWh",pow:[200,1000],powNote:"200 kW 至 1 MW",out:"儲能電源，需另接 EV 充電器",car:"拖車",op:"使用者自助（經另接的充電器）",mod:"未公開",con:"需另接 EV 充電器",biz:"賣設備、storage-as-a-service；價格未公開",mkt:"最後資訊 2024-02",st:"warn",stx:"現況未證實"},
+ {id:"pe",name:"Power Edison TerraCharge",co:"美國",mode:"station",scene:"Workplace & Depot × LDV EV／MHDV EV（間接支援）",cap:[250,6000],capNote:"250 kWh 至 6 MWh 以上",pow:[125,1000],powNote:"125 kW 至 1 MW 以上",out:"儲能電源，需另接 EV 充電器",car:"拖車",op:"使用者自助（經另接的充電器）",mod:"未公開",con:"需另接 EV 充電器",biz:"部署並代營運，宣稱客戶近乎零前期資本支出；價格未公開",mkt:"營運中",st:"ok"},
+ {id:"kom",name:"Komatsu／Dimaag 行動充電車",co:"日本／美國",mode:"ref",scene:"範圍外：電動工程機械與礦業設備",cap:[295,295],capNote:"295 kWh",pow:[1000,1000],powNote:"最高 1 MW DC（業者宣稱模組化 DC-DC 轉換器可擴充到 6 MW）",out:"DC",car:"可遙控的四輪驅動電動車",op:"遙控，自行開到設備旁",mod:"未公開",con:"MCS（1,500 A、1,000 V）",biz:"未公開",mkt:"2025-04 在 Bauma 展發表；美國上市時間由 Komatsu 決定，未公布",st:"ref",stx:"範圍外參考"},
+ {id:"flex",name:"Elli Flexpole",co:"德國",mode:"alt",scene:"Workplace & Depot／(Semi) Public × LDV EV",cap:[193,193],capNote:"193 kWh",pow:[250,250],powNote:"總 250 kW；單槍 150 kW",out:"DC",car:"無（固定設置）",op:"使用者自助",mod:"未公開",con:"CCS（符合德國 Eichrecht）",biz:"賣設備；價格未公開",mkt:"約 1,000 台售出、約 700 台運轉、14 國；VW 決定 2026 年底結束組裝，由 ZhongDe 接手",st:"warn",stx:"將退出硬體"},
+ {id:"zd",name:"ZhongDe Energy",co:"國家待確認",mode:"alt",scene:"Workplace & Depot／(Semi) Public × LDV EV",cap:[219,219],capNote:"219 kWh（CATL 電芯）",pow:[330,330],powNote:"總 330 kW；單槍 300 kW",out:"DC",car:"無（固定設置）",op:"使用者自助",mod:"未公開",con:"CCS",biz:"賣設備；價格未公開",mkt:"接手 Elli Flexpole 組裝",st:"ok"},
+ {id:"bst",name:"FreeWire Boost",co:"美國",mode:"alt",scene:"Workplace & Depot／(Semi) Public × LDV EV",cap:[160,180],capNote:"160 至 180 kWh",pow:[150,200],powNote:"150 至 200 kW",out:"DC",car:"無（固定設置）",op:"使用者自助",mod:"未公開",con:"CCS 等",biz:"賣設備加融資；價格未公開",mkt:"已倒閉，營運至 2024-06；二手 Boost 200 以不到建議售價 1% 求售",st:"bad",stx:"已倒閉"},
+];
+const POW_ONLY=[
+ {id:"sct",name:"SparkCharge 拖車",co:"美國",mode:"station",scene:"Workplace & Depot／(Semi) Public × LDV EV",cap:null,capNote:"未公開",pow:[320,320],powNote:"總 320 kW；4 槍，單槍約 80 kW",out:"DC",car:"拖車",op:"使用者自助（車開過來充）",mod:"未公開",con:"CCS",biz:"CaaS，按度計費或月費合約；二手報導每度 0.35 至 0.60 美元（低信心度）",mkt:"營運中；Zipcar 場站只靠既有電力提供 320 kW 分 4 槍",st:"ok"},
+ {id:"hm",name:"黑馬原力 G30",co:"中國",mode:"roam",scene:"(Semi) Public／Residential × LDV EV",cap:null,capNote:"未公開",pow:[90,90],powNote:"每分鐘約 1.5 度，約 90 kW",out:"DC",car:"機器人",op:"自動或人工駕駛；使用者掃碼下單",mod:"未公開",con:"GB/T（推論）",biz:"物業或停車場採購；使用者掃碼按次付費",mkt:"營運中（老舊社區案例）",st:"ok"},
+ {id:"sp",name:"Sompo Japan",co:"日本",mode:"rescue",scene:"(Semi) Public × LDV EV",cap:null,capNote:"未公開",pow:[9.5,9.5],powNote:"最大 9.5 kW",out:"未公開",car:"未公開",op:SC,mod:"未公開",con:"未公開",biz:"保戶附加道路救援特約才可使用",mkt:"2025-02 起；2025-04 與 JAF 合作擴至全國",st:"ok"},
+];
+const CAP_ONLY=[
+ {id:"xos",name:"Xos Hub",co:"美國",mode:"station",scene:"Workplace & Depot × LDV EV／MHDV EV、Residential",cap:[420,630],capNote:"420 kWh、630 kWh 兩款（另有入門款）",pow:null,powNote:"未公開",out:"DC",car:"拖車",op:"使用者自助（車開過來充）",mod:"三種容量級距，模組化未公開",con:"CCS1，可選 NACS",biz:"賣設備，入門款約 158,000 美元",mkt:"營運中；官方宣稱單台累計交付逾 1 GWh；Xcel Energy 2026-08 追加 3 台",st:"ok",vals:[420,630]},
+];
+const BESS=[
+ {num:1,id:"nomad",name:"NOMAD",co:"美國",use:"multi",models:[["Pathfinder",200,220],["Rover",250,664],["Voyager Hawk",500,1000],["Voyager Falcon",500,2025],["Voyager Eagle",999,2025],["Traveler",1000,2000]],scene:"公用事業、資料中心、活動、緊急應變；EV 充電為用途之一",out:"儲能電源，需另接 EV 充電器",car:"拖車",op:"使用者自助（經另接的充電器）",mod:"未公開",con:"需另接 EV 充電器",biz:"賣設備、租賃、Energy-as-a-Service",mkt:"營運中（Nasdaq: NMAD）；官方宣稱 2026 年累計客戶訂單逾 3,000 萬美元；2026-07 Voyager 系列擴容；需求以資料中心、電網容量、削峰為主",ev:"用途之一：Green Mountain Power 用於活動現場 EV 充電",st:"ok"},
+ {num:2,id:"pe",name:"Power Edison TerraCharge",co:"美國",use:"multi",box:{pow:[125,1000],cap:[250,6000]},capNote:"250 kWh 至 6 MWh 以上",powNote:"125 kW 至 1 MW 以上",scene:"公用事業、車隊、受限電網場址",out:"儲能電源（grid-forming），需另接 EV 充電器",car:"拖車（電池拖車加 PCS 拖車）",op:"使用者自助（經另接的充電器）",mod:"未公開",con:"需另接 EV 充電器",biz:"部署並代營運，宣稱客戶近乎零前期資本支出；車隊充電服務",mkt:"營運中；規模未公開",ev:"與 EV Edison 合作，在永久充電器接上電網前提供車隊行動充電樞紐",st:"ok"},
+ {num:3,id:"xph",name:"Xos Power Hub",co:"美國",use:"multi",models:[["1.2 MWh",600,1200],["2.5 MWh",1200,2500]],powNote:"0.6 MW、1.2 MW（連續功率）",capNote:"1.2 MWh、2.5 MWh（官網另列 5 MWh，未公開功率）",scene:"資料中心、工商業場址、等待電網升級的場址",out:"儲能電源（併網，或搭配太陽能、發電機）",car:"貨櫃",op:"未公開",mod:"可依 1.2 MWh 級距擴充",con:"未公開",biz:"未公開",mkt:"2026-06 發表",ev:"產品頁未提 EV 充電；與 Xos Hub 共用電池與控制架構",st:"ok"},
+ {num:4,id:"scb",name:"SparkCharge BESS",co:"美國",use:"multi",models:[["規格表數值",360,1000]],capNote:"1,000 kWh 以上（FAQ：300 kWh 至 multi-MWh）",powNote:"360 kW 以上（FAQ：350 kW 以上）",scene:"EV 車隊、資料中心、港口與物流、工地、活動與影視製作、自駕車隊",out:"儲能電源，可內建 EV 充電器",car:"拖車、底座或貨櫃",op:"業者部署與營運（CaaS），或客戶自用",mod:"依場址配置容量",con:"未公開",biz:"CaaS（零前期成本）、租賃、買斷、客製微電網",mkt:"營運中；官方宣稱最快 7 天部署",ev:"可內建 EV 充電器，作為免併網的完整充電站",st:"ok"},
+ {num:5,id:"zeeb",name:"Pioneer Power ZEeB",co:"美國",use:"ev",models:[["初始機型",500,1300]],powNote:"500 kW（計畫推出 750 kW、1 MW）",capNote:"1.3 MWh（KORE Power 電芯）",scene:"車隊、公車與校車場站、港口、活動、偏遠地點、災害應變",out:"儲能電源，需另接 EV 充電器（不限品牌）",car:"拖車",op:"未公開",mod:"未公開",con:"不限充電器品牌",biz:"未公開",mkt:"2024-01 發表，與 NOMAD 合作；後續交付規模未證實",ev:"EV 專用：行動離網 EV 充電",st:"warn",stx:"現況未證實"},
+ {num:6,id:"agg",name:"Aggreko 電池租賃",co:"英國",use:"multi",models:[["250 kW / 575 kWh",250,575],["500 kW / 250 kWh",500,250],["1 MW / 1.2 MWh",1000,1200]],capNote:"575 kWh（可用 518）、250 kWh（可用 221）、1.2 MWh",powNote:"250 kW、500 kW、1 MW",scene:"工地、活動、資料中心建置、能源產業、EV 充電站橋接與備援",out:"儲能電源（併網或離網），480 V AC",car:"貨櫃",op:"未公開",mod:"未公開",con:"AC 輸出",biz:"租賃",mkt:"營運中；北美 250 kW 與 500 kW 機型 2024-08 發表",ev:"官網有 EV 充電站橋接與備援電力方案；機型頁未提 EV",st:"ok"},
+ {num:7,id:"atl",name:"Atlas Copco ZBC",co:"瑞典",use:"multi",models:[["ZBC 300-300",240,308],["ZBC 250-575",250,575],["ZBC 500-250",300,246],["ZBC 1000-1200",800,1200]],powNote:"連續功率 240、250、300、800 kW（額定 300、250、500、1,000 kVA）",capNote:"308、575、246、1,200 kWh",scene:"工地、活動、偏遠場址、微電網",out:"儲能電源（併網、離網或搭配發電機）",car:"貨櫃（10 或 20 呎）",op:"未公開",mod:"未公開",con:"未公開",biz:"賣設備，客戶以租賃與營建業者為主",mkt:"營運中",ev:"研究報告指曾用於全電動賽車活動的賽車充電；官網產品頁未提 EV",st:"ok"},
+ {num:8,id:"psk",name:"Zenobē Powerskid",co:"英國",use:"multi",models:[["Powerskid",100,160]],powNote:"額定 100 kW（過載 140、峰值 170 kW）",capNote:"160 kWh LFP",scene:"電網容量不足、無併網或混合發電的場址",out:"儲能電源（離網）",car:"可搬運底座，4,200 kg",op:"未公開",mod:"未公開",con:"400 A Powerlock、CEE 插座",biz:"未公開",mkt:"營運中（2022 年產品型錄）",ev:"型錄未提 EV 充電；Zenobē 本業為車隊電動化",st:"ok"},
+ {num:9,id:"mox",name:"Moxion MP-75",co:"美國",use:"multi",models:[["MP-75",75,600]],powNote:"75 kW",capNote:"600 kWh",scene:"工地、影視、公用事業",out:"移動式電池發電機，取代柴油機",car:"拖車",op:"未公開",mod:"未公開",con:"未公開",biz:"賣設備給租賃商（Sunbelt）",mkt:"已倒閉：2024-08 申請 Chapter 7，資產由 Viridi 收購",ev:"未提 EV 車輛充電；曾為電動挖土機過夜充電",st:"bad",stx:"已倒閉"},
+];
+const BESS_POW=[
+ {num:6,id:"aggs",name:"Aggreko 30／60 kVA",co:"英國",use:"multi",vals:[27,54],capNote:"未公開",powNote:"30 kVA 機型可用約 27 kW、60 kVA 機型約 54 kW（1 至 2 小時）",scene:"活動、承包工程、資料中心建置",out:"儲能電源",car:"可搬運",op:"未公開",mod:"未公開",con:"120 V 單相或 208 V 三相",biz:"租賃",mkt:"營運中",ev:"未提 EV 充電",st:"ok"},
+ {num:10,id:"ampd",name:"Ampd Enertainer",co:"香港",use:"multi",vals:[300,500],capNote:"未公開",powNote:"300 kW、500 kW 兩款",scene:"工地（塔吊、升降機、泵浦）、港口、影視製作",out:"儲能電源（小電網輸入，離網供電）",car:"貨櫃",op:"未公開",mod:"未公開",con:"未公開",biz:"賣設備，透過租賃商出租",mkt:"營運中；約 300 台交付租賃與營建業者（2025-01）",ev:"未提 EV 充電",st:"ok"},
+];
+const ZOOM={p:[50,500],c:[50,500]};
+
+const NS="http://www.w3.org/2000/svg";
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const col=m=>`var(${MODES[m].c})`;
+const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const rng=(a,u)=>!a?"未公開":(a[0]===a[1]?`${a[0].toLocaleString("en")} ${u}`:`${a[0].toLocaleString("en")} 至 ${a[1].toLocaleString("en")} ${u}`);
+const inZoom=d=>d.pow[0]>=ZOOM.p[0]&&d.pow[1]<=ZOOM.p[1]&&d.cap[0]>=ZOOM.c[0]&&d.cap[1]<=ZOOM.c[1];
+
+function swatch(m){const c=css(MODES[m].c),s=MODES[m].shape;let inner;
+  if(s==="circle")inner=`<circle cx="7" cy="7" r="5" fill="${c}"/>`;
+  else if(s==="ring")inner=`<circle cx="7" cy="7" r="4.5" fill="none" stroke="${c}" stroke-width="2.4"/>`;
+  else if(s==="square")inner=`<rect x="2" y="2" width="10" height="10" rx="1.5" fill="${c}"/>`;
+  else if(s==="triangle")inner=`<path d="M7 1.5L12.5 12H1.5Z" fill="${c}"/>`;
+  else if(s==="diamond")inner=`<path d="M7 1L13 7L7 13L1 7Z" fill="${c}"/>`;
+  else inner=`<path d="M2 7H12M7 2V12" stroke="${c}" stroke-width="2.6" stroke-linecap="round"/>`;
+  return `<svg class="sw" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">${inner}</svg>`}
+function pill(d){const k=d.st==="ok"?"ok":d.st==="bad"?"bad":d.st==="ref"?"ref":"warn";return `<span class="pill ${k}">${esc(d.stx||"營運中")}</span>`}
+const counts={};Object.keys(MODES).forEach(m=>counts[m]={n:D.filter(d=>d.mode===m).length+(m==="station"?BESS.filter(b=>b.use==="ev").reduce((a,b)=>a+(b.models?b.models.length:1),0):0),edge:POW_ONLY.filter(d=>d.mode===m).length+CAP_ONLY.filter(d=>d.mode===m).length});
+const multiCount={vendors:new Set([...BESS,...BESS_POW].filter(b=>b.use==="multi").map(b=>b.name.split(" ")[0])).size,n:BESS.filter(b=>b.use==="multi").reduce((a,b)=>a+(b.models?b.models.length:1),0),edge:BESS_POW.reduce((a,b)=>a+b.vals.length,0)};
+const MODE_TXT={
+ daily:"按次或月費；容量 3.5 至 75 kWh，功率 3.7 至 120 kW。AC 低功率的 Chargery 已轉型。",
+ roam:"場地方採購、使用者按次付費；AC 11 kW 的 FreeWire Mobi 已倒閉，DC 約 90 至 100 kW 的中國機器人營運中。",
+ station:"賣設備或 CaaS；EV 專用方案為數百 kWh、單槍約 80 kW。Pioneer ZEeB 是 EV 專用的 MWh 級儲能拖車。",
+ multi:"多用途移動式 BESS：250 kWh 至 MWh 級，主要客戶是工地、活動、公用事業與資料中心，EV 充電只是用途之一；商業模式以租賃、賣設備給租賃商、EaaS 為主。",
+ alt:"賣設備；160 至 219 kWh、總功率 150 至 330 kW。倒閉與營運中的產品規格相近。"};
+
+function drawChart(cfg){
+  const svg=document.getElementById(cfg.svg),panel=svg.closest(".panel"),tip=panel.querySelector(".tip");
+  const {X0,X1,Y0,Y1}=cfg,lp0=Math.log10(cfg.pd[0]),lp1=Math.log10(cfg.pd[1]),lc0=Math.log10(cfg.cd[0]),lc1=Math.log10(cfg.cd[1]);
+  const fx=p=>X0+(Math.log10(p)-lp0)/(lp1-lp0)*(X1-X0), fy=c=>Y1-(Math.log10(c)-lc0)/(lc1-lc0)*(Y1-Y0);
+  const el=(t,a,p=svg)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+  const txt=(a,s,p)=>{const t=el("text",a,p);t.textContent=s;return t};
+  const nameWithStatus=(a,d,p)=>{const t=el("text",a,p);t.appendChild(document.createTextNode(d.name+" "));
+    const ts=document.createElementNS(NS,"tspan");ts.setAttribute("class",d.st==="ok"?"st-ok":d.st==="bad"?"st-bad":d.st==="ref"?"st-ref":"st-warn");ts.textContent=d.stx||"營運中";t.appendChild(ts);return t};
+  // defs: clip + outline filters + hatch
+  const defs=el("defs",{});
+  const cp=el("clipPath",{id:cfg.svg+"-clip"},defs);el("rect",{x:X0,y:Y0,width:X1-X0,height:Y1-Y0},cp);
+  Object.keys(MODES).forEach(m=>{
+    const f=el("filter",{id:`${cfg.svg}-ol-${m}`,x:"-5%",y:"-5%",width:"110%",height:"110%"},defs);
+    el("feMorphology",{in:"SourceAlpha",operator:"dilate",radius:"1.4",result:"d"},f);
+    el("feComposite",{in:"d",in2:"SourceAlpha",operator:"out",result:"o"},f);
+    el("feFlood",{style:`flood-color:${col(m)}`},f);el("feComposite",{in2:"o",operator:"in"},f);
+  });
+  const pat=el("pattern",{id:cfg.svg+"-hatch",width:7,height:7,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"},defs);
+  el("rect",{width:7,height:7,fill:col("alt"),"fill-opacity":.25},pat);el("line",{x1:0,y1:0,x2:0,y2:7,stroke:col("alt"),"stroke-width":2.5},pat);
+  // frame, grid
+  el("rect",{x:X0,y:Y0,width:X1-X0,height:Y1-Y0,fill:"var(--surface)"});
+  cfg.pt.forEach(p=>{el("line",{x1:fx(p),x2:fx(p),y1:Y0,y2:Y1,stroke:"var(--grid)"});txt({x:fx(p),y:Y1+18,"text-anchor":"middle",class:"tick"},p.toLocaleString("en"))});
+  cfg.ct.forEach(c=>{el("line",{x1:X0,x2:X1,y1:fy(c),y2:fy(c),stroke:"var(--grid)"});txt({x:X0-8,y:fy(c)+4,"text-anchor":"end",class:"tick"},c.toLocaleString("en"))});
+  const CR=cfg.cross||{p:50,c:100,pl:"50 kW",cl:"100 kWh"};
+  el("line",{x1:fx(CR.p),x2:fx(CR.p),y1:Y0,y2:Y1,stroke:"var(--cross)","stroke-width":1.5,"stroke-dasharray":"5 4"});txt({x:fx(CR.p)+5,y:Y1-8,class:"tick"},CR.pl);
+  el("line",{x1:X0,x2:X1,y1:fy(CR.c),y2:fy(CR.c),stroke:"var(--cross)","stroke-width":1.5,"stroke-dasharray":"5 4"});
+  txt({x:X0+6,y:fy(CR.c)-6,"text-anchor":"start",class:"tick"},CR.cl);
+  if(cfg.quad){[["大容量 × 低功率",X0+10,Y0+18,"start"],["大容量 × 快充",X1-10,Y0+18,"end"],["小容量 × 低功率",X0+10,Y1-10,"start"],["小容量 × 快充",X1-10,Y1-26,"end"]].forEach(([s,x,y,a])=>txt({x,y,"text-anchor":a,class:"qlab"},s))}
+  txt({x:(X0+X1)/2,y:Y1+40,"text-anchor":"middle",class:"axis-title"},"輸出功率（kW，整台設備總功率，對數刻度）　低 → 高");
+  txt({transform:`translate(26 ${(Y0+Y1)/2}) rotate(-90)`,"text-anchor":"middle",class:"axis-title"},"電池容量（kWh，對數刻度）　低 → 高");
+  // strips
+  const SY=Y1+88,SX=X1+50;
+  el("rect",{x:X0,y:SY-32,width:X1-X0,height:76,fill:"var(--strip)",rx:4});txt({x:X0-8,y:SY+4,"text-anchor":"end",class:"tick"},"只有功率");
+  if(cfg.base){el("rect",{x:SX-22,y:Y0,width:44,height:Y1-Y0,fill:"var(--strip)",rx:4});txt({x:SX,y:Y1+18,"text-anchor":"middle",class:"tick"},"只有容量");}
+
+  // geometry of each item in px
+  const items=!cfg.base?[]:D.filter(d=>d.pow[1]>=cfg.pd[0]&&d.pow[0]<=cfg.pd[1]&&d.cap[1]>=cfg.cd[0]&&d.cap[0]<=cfg.cd[1]);
+  const geo=d=>({x0:fx(d.pow[0]),x1:fx(d.pow[1]),y0:fy(d.cap[0]),y1:fy(d.cap[1])});
+  const near=(g,x,y)=>[Math.min(Math.max(x,g.x0),g.x1),Math.min(Math.max(y,g.y1),g.y0)];
+  // blobs: union of padded shapes + bridges between near items of the same mode
+  const PAD=cfg.pad;
+  const gB=el("g",{"clip-path":`url(#${cfg.svg}-clip)`});
+  const bessG=[],evG=[];
+  if(cfg.bess)BESS.forEach(b=>{const tgt=b.use==="ev"?evG:bessG;if(b.box)tgt.push({x0:fx(b.box.pow[0]),x1:fx(b.box.pow[1]),y0:fy(b.box.cap[0]),y1:fy(b.box.cap[1])});
+    else b.models.forEach(([,kw,kwh])=>tgt.push({x0:fx(kw),x1:fx(kw),y0:fy(kwh),y1:fy(kwh)}))});
+  [...Object.keys(MODES),...(cfg.bess?["multi"]:[])].forEach(m=>{
+    if(m==="ref")return;
+    const its=m==="multi"?[]:items.filter(d=>d.mode===m);
+    const G=m==="multi"?bessG:its.map(geo).concat(m==="station"?evG:[]);if(!G.length)return;
+    const colr=m==="multi"?col("station"):col(m);
+    const shapes=(p)=>{G.forEach(g=>{
+        el("rect",{x:g.x0-PAD,y:g.y1-PAD,width:g.x1-g.x0+2*PAD,height:g.y0-g.y1+2*PAD,rx:PAD,fill:m==="alt"?`url(#${cfg.svg}-hatch)`:colr},p)});
+      // MST bridges under threshold
+      const inT=[0],edges=[];
+      while(inT.length<G.length){let best=null;
+        inT.forEach(i=>G.forEach((g,j)=>{if(inT.includes(j))return;
+          const [ax,ay]=near(G[i],(g.x0+g.x1)/2,(g.y0+g.y1)/2),[bx,by]=near(g,ax,ay),[cx,cy]=near(G[i],bx,by);
+          const dd=Math.hypot(bx-cx,by-cy);if(!best||dd<best.d)best={i,j,d:dd,a:[cx,cy],b:[bx,by]}}));
+        inT.push(best.j);if(best.d<cfg.bridge)edges.push(best)}
+      edges.forEach(e=>el("line",{x1:e.a[0],y1:e.a[1],x2:e.b[0],y2:e.b[1],stroke:m==="alt"?`url(#${cfg.svg}-hatch)`:colr,"stroke-width":PAD*1.5,"stroke-linecap":"round"},p));
+    };
+    const fillG=el("g",{opacity:m==="alt"?.55:m==="multi"?.07:.16,class:"blob",style:"cursor:help"},gB);shapes(fillG);
+    const olG=el("g",{filter:`url(#${cfg.svg}-ol-${m==="multi"?"station":m})`,opacity:m==="multi"?.35:.85,"pointer-events":"none"},gB);shapes(olG);
+    fillG.addEventListener("pointermove",e=>showMode(m,e));fillG.addEventListener("pointerleave",hide);
+  });
+  if(cfg.zoomFrame){const z=cfg.zoomFrame;el("rect",{class:"zoomframe",x:fx(z.p[0]),y:fy(z.c[1]),width:fx(z.p[1])-fx(z.p[0]),height:fy(z.c[0])-fy(z.c[1])});
+    txt({x:fx(z.p[0])+4,y:fy(z.c[1])-6,class:"qlab"},"放大區（見下圖）")}
+  const gL=el("g",{}),gM=el("g",{"clip-path":`url(#${cfg.svg}-clip)`}),gS=el("g",{});
+
+  function shape(m,x,y,parent,r=6,hollow=false){
+    const s=MODES[m].shape,c=col(m),f=hollow?"var(--surface)":c;
+    if(s==="circle")return el("circle",{cx:x,cy:y,r,fill:f,stroke:"var(--surface)","stroke-width":2,style:hollow?`stroke:${c}`:""},parent);
+    if(s==="ring")return el("circle",{cx:x,cy:y,r,fill:"var(--surface)",stroke:c,"stroke-width":2.6},parent);
+    if(s==="square")return el("rect",{x:x-r,y:y-r,width:2*r,height:2*r,rx:1.5,fill:f,stroke:hollow?c:"var(--surface)","stroke-width":hollow?2:1.5},parent);
+    if(s==="triangle")return el("path",{d:`M${x},${y-r-1.5}L${x+r+1.5},${y+r}L${x-r-1.5},${y+r}Z`,fill:f,stroke:hollow?c:"var(--surface)","stroke-width":hollow?2:1.5,"stroke-linejoin":"round"},parent);
+    if(s==="diamond")return el("path",{d:`M${x},${y-r-1.5}L${x+r+1.5},${y}L${x},${y+r+1.5}L${x-r-1.5},${y}Z`,fill:f,stroke:hollow?c:"var(--surface)","stroke-width":hollow?2:1.5},parent);
+    return el("path",{d:`M${x-r},${y}H${x+r}M${x},${y-r}V${y+r}`,stroke:c,"stroke-width":3,"stroke-linecap":"round",fill:"none"},parent);
+  }
+  const labels=[];
+  items.forEach(d=>{
+    const g=geo(d),grp=el("g",{class:"mark",tabindex:"0","aria-label":d.name},gM);
+    const box=d.pow[0]!==d.pow[1]&&d.cap[0]!==d.cap[1],seg=!box&&(d.pow[0]!==d.pow[1]||d.cap[0]!==d.cap[1]);
+    if(box)el("rect",{class:"hit",x:g.x0,y:g.y1,width:g.x1-g.x0,height:g.y0-g.y1,fill:col(d.mode),"fill-opacity":.10,stroke:col(d.mode),"stroke-width":1.6,rx:3},grp);
+    else if(seg){el("line",{x1:g.x0,y1:g.y0,x2:g.x1,y2:g.y1,stroke:"transparent","stroke-width":16},grp);
+      el("line",{class:"hit",x1:g.x0,y1:g.y0,x2:g.x1,y2:g.y1,stroke:col(d.mode),"stroke-width":4,"stroke-linecap":"round"},grp);
+      shape(d.mode,g.x0,g.y0,grp,4.5);shape(d.mode,g.x1,g.y1,grp,4.5)}
+    else{el("circle",{cx:g.x0,cy:g.y0,r:14,fill:"transparent"},grp);shape(d.mode,g.x0,g.y0,grp,6.5).classList.add("hit")}
+    bind(grp,d);
+    const L=cfg.labels[d.id];if(L)labels.push({d,g,L});
+  });
+  // Mr. Charger dot must sit above Lightning line
+  const mrc=[...gM.querySelectorAll(".mark")].find(n=>n.getAttribute("aria-label").startsWith("Mr."));if(mrc)gM.appendChild(mrc);
+
+  // ---- mobile BESS: numbered badges ----
+  const gX=el("g",{});
+  const badges=[];
+  const bessGeoms=[],evGeoms=[];
+  if(cfg.bess)BESS.forEach(b=>{
+    if(b.box){const g={x0:fx(b.box.pow[0]),x1:fx(b.box.pow[1]),y0:fy(b.box.cap[0]),y1:fy(b.box.cap[1])};
+      const grp=el("g",{class:"mark",tabindex:"0","aria-label":b.name},gX);
+      el("rect",{class:"hit",x:g.x0,y:g.y1,width:g.x1-g.x0,height:g.y0-g.y1,fill:col("station"),"fill-opacity":.06,stroke:col("station"),"stroke-width":1.4,"stroke-dasharray":"6 4",rx:3},grp);
+      bindB(grp,b,null);(b.use==="ev"?evGeoms:bessGeoms).push(g);
+      badges.push({b,models:null,x:g.x0+11,y:g.y1+11,fixed:true});return}
+    const pts=[];
+    b.models.forEach(([mn,kw,kwh])=>{const x=fx(kw),y=fy(kwh);
+      const same=pts.find(p=>Math.hypot(p.x-x,p.y-y)<7);if(same){same.models.push([mn,kw,kwh])}else pts.push({x,y,models:[[mn,kw,kwh]]});
+      (b.use==="ev"?evGeoms:bessGeoms).push({x0:x,x1:x,y0:y,y1:y})});
+    pts.forEach(p=>badges.push({b,models:p.models,x:p.x,y:p.y,ox:p.x,oy:p.y}));
+  });
+  // cross-vendor identical points share one badge
+  const merged=[];badges.forEach(bd=>{const m=!bd.fixed&&merged.find(o=>!o.fixed&&Math.hypot(o.ox-bd.ox,o.oy-bd.oy)<3);
+    if(m){m.others=(m.others||[]).concat([bd])}else merged.push(bd)});
+  // nudge badges that overlap (display only)
+  for(let it=0;it<30;it++)for(let i=0;i<merged.length;i++)for(let j=i+1;j<merged.length;j++){const a=merged[i],c=merged[j];
+    const dx=c.x-a.x,dy=c.y-a.y,dd=Math.hypot(dx,dy)||.01,minD=(a.others||c.others)?21:16;
+    if(dd<minD){const k=(minD-dd)/2/dd;if(!a.fixed){a.x-=dx*k;a.y-=dy*k}if(!c.fixed){c.x+=dx*k;c.y+=dy*k}}}
+  merged.forEach(bd=>{
+    const all=[bd].concat(bd.others||[]),label=all.map(o=>o.b.num).join("/"),ev=bd.b.use==="ev";
+    const grp=el("g",{class:"mark",tabindex:"0","aria-label":all.map(o=>o.b.name).join("、")},gX);
+    if(Math.hypot(bd.x-(bd.ox??bd.x),bd.y-(bd.oy??bd.y))>2)el("line",{x1:bd.ox,y1:bd.oy,x2:bd.x,y2:bd.y,stroke:col("station"),"stroke-width":1},grp);
+    if(bd.ox!=null)el("circle",{cx:bd.ox,cy:bd.oy,r:1.8,fill:col("station")},grp);
+    const w=label.length>2?24:16;
+    el("rect",{class:"hit",x:bd.x-w/2,y:bd.y-8,width:w,height:16,rx:8,fill:ev?col("station"):"var(--surface)",stroke:col("station"),"stroke-width":1.8},grp);
+    txt({x:bd.x,y:bd.y+3.5,"text-anchor":"middle",style:`font-family:var(--f-data);font-size:10px;font-weight:500;fill:${ev?"var(--surface)":"var(--ink)"}`},label,grp);
+    grp.addEventListener("pointermove",e=>{e.stopPropagation();showBess(all,e,grp)});grp.addEventListener("pointerleave",hide);
+    grp.addEventListener("focus",e=>showBess(all,e,grp));grp.addEventListener("blur",hide);
+  });
+  // power-only BESS in the strip (upper row)
+  if(cfg.bess)BESS_POW.forEach(b=>{const grp=el("g",{class:"mark",tabindex:"0","aria-label":b.name},gS);
+    const xs=b.vals.map(fx),yy=SY;
+    el("line",{x1:xs[0],x2:xs[xs.length-1],y1:yy,y2:yy,stroke:col("station"),"stroke-width":2,"stroke-dasharray":"3 3"},grp);
+    xs.forEach(x=>{el("rect",{class:"hit",x:x-8,y:yy-8,width:16,height:16,rx:8,fill:"var(--surface)",stroke:col("station"),"stroke-width":1.8},grp);
+      txt({x,y:yy+3.5,"text-anchor":"middle",style:"font-family:var(--f-data);font-size:10px;font-weight:500;fill:var(--ink)"},b.num,grp)});
+    grp.addEventListener("pointermove",e=>{e.stopPropagation();showBess([{b,models:null}],e,grp)});grp.addEventListener("pointerleave",hide);
+    grp.addEventListener("focus",e=>showBess([{b,models:null}],e,grp));grp.addEventListener("blur",hide)});
+  function bindB(grp,b){grp.addEventListener("pointermove",e=>{e.stopPropagation();showBess([{b,models:null}],e,grp)});grp.addEventListener("pointerleave",hide);
+    grp.addEventListener("focus",e=>showBess([{b,models:null}],e,grp));grp.addEventListener("blur",hide)}
+
+  if(cfg.base)POW_ONLY.filter(d=>d.pow[1]>=cfg.pd[0]&&d.pow[0]<=cfg.pd[1]).forEach(d=>{
+    const grp=el("g",{class:"mark",tabindex:"0","aria-label":d.name},gS),x0=fx(d.pow[0]),x1=fx(d.pow[1]);
+    if(x0!==x1){el("line",{x1:x0,x2:x1,y1:SY,y2:SY,stroke:"transparent","stroke-width":16},grp);el("line",{class:"hit",x1:x0,x2:x1,y1:SY,y2:SY,stroke:col(d.mode),"stroke-width":3,"stroke-linecap":"round"},grp)}
+    else{el("circle",{cx:x0,cy:SY,r:14,fill:"transparent"},grp);shape(d.mode,x0,SY,grp,6,true).classList.add("hit")}
+    const up=cfg.stripUp&&cfg.stripUp.includes(d.id),mx=(x0+x1)/2;
+    labels.push({d,strip:true,x:mx,y:up?SY-22:SY+20,anc:"middle",val:rng(d.pow,"kW")});bind(grp,d);
+  });
+  if(cfg.base)CAP_ONLY.forEach(d=>{const vs=d.vals.filter(v=>v>=cfg.cd[0]&&v<=cfg.cd[1]);if(!vs.length)return;
+    const grp=el("g",{class:"mark",tabindex:"0","aria-label":d.name},gS);
+    vs.forEach(v=>{el("circle",{cx:SX,cy:fy(v),r:12,fill:"transparent"},grp);shape(d.mode,SX,fy(v),grp,6,true).classList.add("hit");txt({x:SX-12,y:fy(v)+4,"text-anchor":"end",class:"lbl-val"},v,gL)});
+    nameWithStatus({x:SX+20,y:fy(Math.max(...vs))-16,"text-anchor":"end",class:"lbl-name"},d,gL);bind(grp,d)});
+
+  // labels with swatch, drawn after fonts load so widths are right
+  function placeLabels(){
+    gL.querySelectorAll(".lab").forEach(n=>n.remove());
+    labels.forEach(o=>{
+      const d=o.d,grp=el("g",{class:"lab"},gL);let x,y,anc;
+      if(o.strip){x=o.x;y=o.y;anc=o.anc}else{[x,y,anc]=o.L;anc=anc||"start"}
+      const t1=nameWithStatus({x,y,"text-anchor":anc,class:"lbl-name"},d,grp);
+      const t2=txt({x,y:y+14,"text-anchor":anc,class:"lbl-val"},o.val||`${rng(d.cap,"kWh")} / ${rng(d.pow,"kW")}`,grp);
+      const w=t1.getComputedTextLength();const sx=anc==="end"?x-w-9:anc==="middle"?x-w/2-9:x-9;
+      // swatch before the name
+      const sw=el("g",{transform:`translate(${sx} ${y-4})`},grp);
+      const m=d.mode,s=MODES[m].shape,c=col(m);
+      if(s==="circle")el("circle",{r:4.5,fill:c},sw);else if(s==="ring")el("circle",{r:3.8,fill:"none",stroke:c,"stroke-width":2.2},sw);
+      else if(s==="square")el("rect",{x:-4,y:-4,width:8,height:8,rx:1,fill:c},sw);else if(s==="triangle")el("path",{d:"M0,-5L5,4H-5Z",fill:c},sw);
+      else if(s==="diamond")el("path",{d:"M0,-5L5,0L0,5L-5,0Z",fill:c},sw);else el("path",{d:"M-4,0H4M0,-4V4",stroke:c,"stroke-width":2.4},sw);
+      if(!o.strip){const bb=grp.getBBox(),bx0=bb.x-3,bx1=bb.x+bb.width+3,by0=bb.y-2,by1=bb.y+bb.height+2;
+        const wp=o.L[3]||[];const [px,py]=near(o.g,wp.length?wp[0][0]:(bx0+bx1)/2,wp.length?wp[0][1]:(by0+by1)/2);
+        const last=wp.length?wp[wp.length-1]:[px,py];
+        const qx=Math.min(Math.max(last[0],bx0),bx1),qy=Math.min(Math.max(last[1],by0),by1);
+        if(wp.length||Math.hypot(qx-px,qy-py)>12){const ld=document.createElementNS(NS,"path");ld.setAttribute("class","lead");
+          ld.setAttribute("d",`M${px.toFixed(1)},${py.toFixed(1)}`+wp.map(w=>`L${w[0]},${w[1]}`).join("")+`L${qx.toFixed(1)},${qy.toFixed(1)}`);grp.insertBefore(ld,grp.firstChild)}}
+    });
+  }
+  (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(placeLabels);placeLabels();
+
+  // tooltip
+  let pinned=null;
+  function place(e,node){const pr=panel.getBoundingClientRect();let x,y;
+    if(e&&e.clientX!=null&&e.type!=="focus"){x=e.clientX-pr.left;y=e.clientY-pr.top}else{const r=node.getBoundingClientRect();x=r.left+r.width/2-pr.left;y=r.top+r.height/2-pr.top}
+    tip.hidden=false;const tw=tip.offsetWidth,th=tip.offsetHeight;let left=x+16,top=y+16;
+    if(left+tw>pr.width-8)left=x-tw-16;if(left<8)left=8;if(top+th>pr.height-8)top=Math.max(8,y-th-16);tip.style.left=left+"px";tip.style.top=top+"px"}
+  function showItem(d,e,node){tip.innerHTML=`<h3>${esc(d.name)}（${esc(d.co)}）</h3><div class="mode">${swatch(d.mode)}${esc(MODES[d.mode].name)} ${pill(d)}</div>
+    <dl><dt>主要場景</dt><dd>${esc(d.scene)}</dd><dt>電池容量</dt><dd class="v">${esc(d.capNote)}</dd><dt>輸出功率</dt><dd class="v">${esc(d.powNote)}</dd>
+    <dt>輸出類型</dt><dd>${esc(d.out)}</dd><dt>載具</dt><dd>${esc(d.car)}</dd><dt>操作方式</dt><dd>${esc(d.op)}</dd><dt>模組化</dt><dd>${esc(d.mod)}</dd>
+    <dt>接頭</dt><dd>${esc(d.con)}</dd><dt>商業模式</dt><dd>${esc(d.biz)}</dd><dt>市場回應</dt><dd>${esc(d.mkt)}</dd></dl>`;place(e,node)}
+  function showMode(m,e){if(m==="multi"){tip.innerHTML=`<h3>移動式 BESS（多用途）</h3><div class="mode">${multiCount.vendors} 家、${multiCount.n} 款可畫出；邊緣帶 ${multiCount.edge} 款</div><div>${esc(MODE_TXT.multi)}</div>`;place(e);return}
+    const s=counts[m];tip.innerHTML=`<h3>${esc(MODES[m].name)}</h3><div class="mode">${swatch(m)}可畫出 ${s.n} 點；邊緣帶 ${s.edge} 點</div><div>${esc(MODE_TXT[m]||"")}</div>`;place(e)}
+  function showBess(all,e,node){
+    tip.innerHTML=all.map(o=>{const b=o.b,ms=o.models||(b.models||[]);
+      const mtxt=o.models?o.models.map(([mn,kw,kwh])=>`${mn}：${kwh.toLocaleString("en")} kWh / ${kw.toLocaleString("en")} kW`).join("\n"):null;
+      return `<h3>${b.num}. ${esc(b.name)}（${esc(b.co)}）</h3><div class="mode">移動式 BESS（${b.use==="ev"?"EV 專用":"多用途"}） ${pill(b)}</div>
+      <dl>${mtxt?`<dt>此點機型</dt><dd class="v">${esc(mtxt)}</dd>`:""}<dt>電池容量</dt><dd class="v">${esc(b.capNote||(b.models||[]).map(m=>m[2].toLocaleString("en")+" kWh").join("、"))}</dd>
+      <dt>輸出功率</dt><dd class="v">${esc(b.powNote||(b.models||[]).map(m=>m[1].toLocaleString("en")+" kW").join("、"))}</dd>
+      <dt>EV 用途</dt><dd>${esc(b.ev)}</dd><dt>主要場景</dt><dd>${esc(b.scene)}</dd><dt>輸出類型</dt><dd>${esc(b.out)}</dd><dt>載具</dt><dd>${esc(b.car)}</dd>
+      <dt>接頭</dt><dd>${esc(b.con)}</dd><dt>商業模式</dt><dd>${esc(b.biz)}</dd><dt>市場回應</dt><dd>${esc(b.mkt)}</dd></dl>`}).join('<hr style="border:0;border-top:1px solid var(--line);margin:8px 0">');
+    place(e,node)}
+  function hide(){if(!pinned)tip.hidden=true}
+  function bind(g,d){g.addEventListener("pointermove",e=>{e.stopPropagation();showItem(d,e,g)});g.addEventListener("pointerleave",hide);
+    g.addEventListener("focus",e=>showItem(d,e,g));g.addEventListener("blur",()=>{pinned=null;hide()});
+    g.addEventListener("click",e=>{e.stopPropagation();pinned=pinned===d?null:d;showItem(d,e,g)})}
+  document.addEventListener("click",()=>{pinned=null;tip.hidden=true});
+}
+
+// chart 1: mobile charging (previous layout)
+drawChart({svg:"c1",base:true,bess:false,X0:90,X1:900,Y0:30,Y1:540,pd:[2,2000],cd:[2,10000],pad:10,bridge:70,quad:true,
+  pt:[2,5,10,20,50,100,200,500,1000,2000],ct:[2,5,10,20,50,100,200,500,1000,2000,5000,10000],
+  stripUp:["sp"],
+  labels:{chg:[178,382],v2:[376,498],mobi:[306,316],nom:[812,148,"end"],pe:[812,80,"end"],lit:[440,236,"end"],cdu:[565,384,"start"],kom:[548,118,"end"],v3:[580,327],zd:[748,266],flex:[748,298],bst:[748,346]}});
+// chart 2: mobile BESS
+drawChart({svg:"c2",base:false,bess:true,X0:90,X1:930,Y0:30,Y1:540,pd:[20,2000],cd:[100,10000],pad:12,bridge:90,quad:true,
+  cross:{p:500,c:1000,pl:"500 kW",cl:"1 MWh"},
+  pt:[20,50,100,200,500,1000,2000],ct:[100,200,500,1000,2000,5000,10000],labels:{}});
+
+// legend + table
+const lg=document.getElementById("legend");
+Object.keys(MODES).filter(m=>counts[m].n+counts[m].edge>0).forEach(m=>{const s=counts[m],div=document.createElement("div");div.className="item";
+  div.innerHTML=`${swatch(m)}<span>${esc(MODES[m].name)}</span><span class="cnt">可畫出 ${s.n}・邊緣帶 ${s.edge}</span>`;lg.appendChild(div)});
+
+const key=document.getElementById("key");
+key.innerHTML=`<h3>移動式 BESS 編號對照</h3>`+[...BESS,...BESS_POW.filter(b=>b.id==="ampd")].sort((a,b)=>a.num-b.num).map(b=>{
+  const extra=b.id==="agg"?"；另有 30／60 kVA 小型機（下方邊緣帶）":"";
+  const cap=b.capNote||(b.models||[]).map(m=>m[2].toLocaleString("en")).join("、")+" kWh";
+  const pw=b.powNote||(b.models||[]).map(m=>m[1].toLocaleString("en")).join("、")+" kW";
+  const spec=b.models&&!b.capNote?b.models.map(([mn,kw,kwh])=>`${mn} ${kwh.toLocaleString("en")} kWh／${kw.toLocaleString("en")} kW`).join("；"):`${cap}；${pw}`;
+  return `<div class="k"><span class="badge${b.use==="ev"?" ev":""}">${b.num}</span><div><span class="nm">${esc(b.name)}</span>（${esc(b.co)}） ${pill(b)}<div class="sp">${esc(spec+extra)}</div></div></div>`}).join("");
+const rows=[...D,...POW_ONLY,...CAP_ONLY],order=["daily","roam","station","rescue","portable","alt","ref"];
+rows.sort((a,b)=>order.indexOf(a.mode)-order.indexOf(b.mode));
+document.getElementById("table").innerHTML=`<thead><tr><th>部署模式</th><th>產品</th><th>電池容量</th><th>輸出功率</th><th>輸出類型</th><th>主要場景</th><th>狀態</th></tr></thead><tbody>`+
+ rows.map(d=>`<tr><td>${swatch(d.mode)}${esc(MODES[d.mode].name)}</td><td>${esc(d.name)}（${esc(d.co)}）</td><td class="n">${esc(d.capNote)}</td><td class="n">${esc(d.powNote)}</td><td>${esc(d.out)}</td><td>${esc(d.scene)}</td><td>${pill(d)}</td></tr>`).join("")+
+ [...BESS,...BESS_POW].sort((a,b)=>a.num-b.num).map(b=>{const cap=b.capNote||b.models.map(m=>m[2].toLocaleString("en")+" kWh").join("、");const pw=b.powNote||b.models.map(m=>m[1].toLocaleString("en")+" kW").join("、");
+  return `<tr><td><span class="badge${b.use==="ev"?" ev":""}" style="margin-right:6px">${b.num}</span>移動式 BESS（${b.use==="ev"?"EV 專用":"多用途"}）</td><td>${esc(b.name)}（${esc(b.co)}）</td><td class="n">${esc(cap)}</td><td class="n">${esc(pw)}</td><td>${esc(b.out)}</td><td>${esc(b.scene)}</td><td>${pill(b)}</td></tr>`}).join("")+`</tbody>`;
+</script>
+
+</body></html>
